@@ -1,0 +1,15 @@
+server:
+  port: 8090
+
+server-app:
+  url: http://localhost:8080/
+  dataEndpoint: api
+
+user:
+  login: myLogin
+  password: myPassword
+
+client-app:
+  url: http://localhost:8090/new
+
+
