@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data //Для автоматического формирования геттеров, сеттеров и конструкторов
 @NoArgsConstructor //Конструктор без аргументов
-@AllArgsConstructor
+@AllArgsConstructor//Конструктор c аргументfvb
 public class User {
 
   @JsonProperty("Name")  //Отображение Json

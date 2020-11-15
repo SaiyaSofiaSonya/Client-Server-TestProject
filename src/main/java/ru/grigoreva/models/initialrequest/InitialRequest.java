@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 //Создание обертки для запроса от клиента при подключении к серверу
 public class InitialRequest {
     @JsonProperty("Admin")

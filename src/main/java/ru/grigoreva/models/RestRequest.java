@@ -12,6 +12,7 @@ import ru.grigoreva.models.request.Request;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+//Модель обертка для Json с информацией о пользователе, помогает передать Json с полями, указанными внутри
 public class RestRequest {
 
   @JsonProperty("Request")

@@ -1,5 +1,6 @@
 package ru.grigoreva.client;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.grigoreva.models.Message;
 import ru.grigoreva.models.RestRequest;
@@ -17,10 +19,10 @@ import ru.grigoreva.models.request.Request;
 import ru.grigoreva.models.request.User;
 import javax.annotation.PostConstruct;
 
-@Component  //Для создаия Bean
+@Slf4j //Подключено логирование
+@Service  //Для создаия Bean
 public class Client {
 
-    Logger log = LoggerFactory.getLogger(Client.class);  //Подключено логирование
     private ApplicationContext applicationContext;
 
     //Значения подтягиваются из файла application.yml
@@ -35,18 +37,19 @@ public class Client {
     @Value("${client-app.url}")
     private String urlForPostForm;
 
-    @PostConstruct   //Анатоция используется, чтобы метод запускался после запуска приложения
+    @PostConstruct   //Анотоция используется, чтобы метод запускался после запуска приложения
     public void init() {
-        log.info("Context is initialized");
+        log.info("Происходит инициализация");
         log.info("User name: {}", userName);
         if (password != null) {
-            log.info("User password was successfully read");
+            log.info("User password успешно считан");
         }
         connectToServer();
     }
 
 //Подключение к серверу, передача username админа и пароля
     public void connectToServer() {
+    //формируется  объект для Json, преобразуется в Json
         Admin admin = new Admin(userName, password);
         InitialRequest initialRequest = new InitialRequest(admin);
 
@@ -58,13 +61,15 @@ public class Client {
         restTemplate.getMessageConverters().add(new GsonHttpMessageConverter());
 
         try {
-            log.info("Try to set connection..");
+            log.info("Попытка подключения к серверу..");
+        //Данные отправлены, ответ записывается в переменную
             final String response = restTemplate.postForObject(serverAppUrl, request, String.class);
-            log.info("Receive response: {}", response);
-            log.info("Please, go to " + urlForPostForm + " to input your info");
+            log.info("Название сервера: {}", response);
+        //Выводится ссылка на экран для заполенния формы Фамилии и Имени пользователя
+            log.info("Пожалуйста, перейдите по ссылке: " + urlForPostForm + " для заполения формы");
         } catch (Exception e) {
-            log.error("Failed to connect to server, will shout down the application..");
-   //         initiateShutdown(1); ! Не работает
+            log.error("Не получилось подключиться к серверу,приложение будет выключено.");
+            initiateShutdown(1);
         }
     }
 
@@ -73,7 +78,7 @@ public class Client {
 
         log.info("Sending request.....{}", user);
 
-    //Для формирования message
+    //Для формирования объекта Request
         final String  PREFIX_MESSAGE = "Привет всем!";
         RestRequest restRequest = new RestRequest();
         Request request = new Request();
@@ -83,10 +88,7 @@ public class Client {
         request.setMessage(message);
         restRequest.setRequest(request);
 
-    //Для отправки запроса на эндпоинт, отличный от connectToServer()
-       log.info("I send the: {}", restRequest);
-
-        //Вспомогательные методы для отправки запроса
+    //Вспомогательные методы для отправки запроса
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(new MediaType("application","json"));
@@ -95,34 +97,24 @@ public class Client {
 
     //Отправка запроса и обработка исключений, закрытие приложения в случае ошибки
         try {
-            log.info("Try to send message");
+            log.info("Пытаюсь отправить сообщение");
             ResponseEntity<String> responseEntity = restTemplate
                     .exchange(url+dataEndpoint, HttpMethod.POST, requestEntity, String.class);
             String result = responseEntity.getBody();
-            log.info("Receive response: {}", responseEntity);
+            log.info("Получен response: {}", responseEntity);
         } catch (Exception e) {
-            log.error("Failed to connect to server, will shout down the application..");
-            //         initiateShutdown(1); ! Не работает
+            log.error("Не получилось подключиться к серверу, выключай приложение..");
+            initiateShutdown(1);
         }
 
     }
 
-     // Возвращает 0, если нет ошибок
+    // Выключает приложение, код 1 используется в случае ошибки
     private void initiateShutdown(int returnCode){
-        SpringApplication.exit(applicationContext, () -> returnCode);
-    }
-
-    private String getBody() {   //Полезная нагрузка для post-зарпоса серверу
-        return "{\n" +
-                "    \"admin\": {\n" +
-                "      \"login\": \"1\",\n" +
-                "      \"password\": \"2\",\n" +
-                "    }\n"+
-                "}";
+        SpringApplication.exit(applicationContext
+                , () -> returnCode);
     }
 }
 
-//   "      \"login\": \" "    + userName   + "\",\n" +
-//   "      \"password\": \" " + password + "\",\n" +
 
 

@@ -12,7 +12,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Admin {
 
-    @JsonProperty("Login")
+    @JsonProperty("Login")//Для отражения в Json
     private String login;
 
 
