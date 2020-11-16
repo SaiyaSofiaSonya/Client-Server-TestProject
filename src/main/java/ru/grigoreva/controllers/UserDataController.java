@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import ru.grigoreva.client.Client;
 import ru.grigoreva.models.request.User;
 
-
 @Slf4j //Подключено логирование
 @Controller//Для принятия запросов с html страниц
 public class UserDataController {

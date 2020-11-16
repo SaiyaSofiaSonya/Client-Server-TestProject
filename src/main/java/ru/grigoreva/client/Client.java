@@ -1,14 +1,11 @@
 package ru.grigoreva.client;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.grigoreva.models.Message;
@@ -61,7 +58,6 @@ public class Client {
         restTemplate.getMessageConverters().add(new GsonHttpMessageConverter());
 
         try {
-            log.info("Попытка подключения к серверу..");
         //Данные отправлены, ответ записывается в переменную
             final String response = restTemplate.postForObject(serverAppUrl, request, String.class);
             log.info("Название сервера: {}", response);
@@ -75,8 +71,6 @@ public class Client {
 
 //Подключение к серверу, передача username админа и пароля
     public void sendJSon(User user){
-
-        log.info("Sending request.....{}", user);
 
     //Для формирования объекта Request
         final String  PREFIX_MESSAGE = "Привет всем!";
@@ -97,13 +91,11 @@ public class Client {
 
     //Отправка запроса и обработка исключений, закрытие приложения в случае ошибки
         try {
-            log.info("Пытаюсь отправить сообщение");
             ResponseEntity<String> responseEntity = restTemplate
                     .exchange(url+dataEndpoint, HttpMethod.POST, requestEntity, String.class);
             String result = responseEntity.getBody();
-            log.info("Получен response: {}", responseEntity);
         } catch (Exception e) {
-            log.error("Не получилось подключиться к серверу, выключай приложение..");
+            log.error("Не получилось подключиться к серверу, выключаю приложение..");
             initiateShutdown(1);
         }
 
